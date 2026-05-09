@@ -30,7 +30,6 @@ func (r *Runtime) UnmarshalJSON(data []byte) error {
 	if len(parts) != 2 || parts[1] != "mins" {
 		return ErrInvalidRuntimeFormat
 	}
-
 	i, err := strconv.ParseInt(parts[0], 10, 32)
 	if err != nil {
 		return ErrInvalidRuntimeFormat
