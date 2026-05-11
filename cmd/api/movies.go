@@ -90,9 +90,6 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
 			return
-		case errors.Is(err, data.ErrEditConflict):
-			app.editConflictResponse(w, r)
-			return
 		default:
 			app.serverErrorResponse(w, r, err)
 			return
@@ -137,8 +134,14 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 
 	err = app.models.Movies.Update(movie)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+			return
+		default:
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
@@ -150,7 +153,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
-		app.notFoundResponse(w, r)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
