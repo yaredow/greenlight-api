@@ -90,6 +90,9 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
 			return
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+			return
 		default:
 			app.serverErrorResponse(w, r, err)
 			return
